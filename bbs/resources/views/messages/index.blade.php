@@ -39,7 +39,7 @@
                         <td>{{ $message->name }}</td>
                         <td>{{ $message->title }}</td>
                         <td>{{ $message->body }}</td>
-                        <td>{{ $message->created_at }}s</td>
+                        <td>{{ $message->created_at }}</td>
                     </tr>
                 @endforeach
                 </table>

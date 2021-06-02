@@ -19,7 +19,6 @@ class MessagesController extends Controller
 
         // データを引き連れてviewへ移動
         return view('messages.index', compact('messages'));
-
     }
 
     /**
@@ -29,7 +28,12 @@ class MessagesController extends Controller
      */
     public function create()
     {
-        //
+        //dd('OK');
+        // 空のメッセージインスタンスを作成
+        $message = new Message();
+    
+        // データを引き連れてviewへ移動
+        return view('messages.create', compact('message'));
     }
 
     /**
@@ -40,7 +44,41 @@ class MessagesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //dd('store');
+        // 入力情報の取得
+        $name = $request->input('name');
+        // $name = $request->name;
+        $title = $request->input('title');
+        $body = $request->input('body');
+        $file =  $request->image;
+        
+        //参考ページ
+        // https://qiita.com/ryo-program/items/35bbe8fc3c5da1993366
+        if ($file) { // ファイルが選択されていれば
+            // 現在時刻ともともとのファイル名を組み合わせてランダムなファイル名作成
+            $image = time() . $file->getClientOriginalName();
+            // アップロードするフォルダ名取得
+            $target_path = public_path('uploads/');
+            // アップロード処理
+            $file->move($target_path, $image);
+        } else { // ファイルが選択されていなければ
+            $image = "";
+        }
+        
+        // 入力情報をもとに新しいインスタンス作成
+        $message = new Message();
+
+        $message->name = $name;
+        $message->title = $title;
+        $message->body = $body;
+        $message->image = $image;
+
+        
+        // データベースに保存
+        $message->save();
+        
+        // index action へリダイレクト
+        return redirect('/');
     }
 
     /**
@@ -51,8 +89,11 @@ class MessagesController extends Controller
      */
     public function show(Message $message)
     {
-        dd($message);
+        //dd($message);
+        // データを引き連れてviewへ移動
+        return view('messages.show', compact('message'));
     }
+    
 
     /**
      * Show the form for editing the specified resource.
@@ -62,7 +103,9 @@ class MessagesController extends Controller
      */
     public function edit(Message $message)
     {
-        dd($message);
+        //dd($message);
+        // データを引き連れてviewへ移動
+        return view('messages.edit', compact('message'));
     }
 
     /**
@@ -74,7 +117,36 @@ class MessagesController extends Controller
      */
     public function update(Request $request, Message $message)
     {
-        //
+        //dd('update');
+        // 入力情報の取得
+        $name = $request->input('name');
+        $title = $request->input('title');
+        $body = $request->input('body');
+        $file =  $request->image;
+        
+        // https://qiita.com/ryo-program/items/35bbe8fc3c5da1993366
+        if ($file) { // ファイルが選択されていれば
+            // 現在時刻ともともとのファイル名を組み合わせてランダムなファイル名作成
+            $image = time() . $file->getClientOriginalName();
+            // アップロードするフォルダ名取得
+            $target_path = public_path('uploads/');
+            // アップロード処理
+            $file->move($target_path, $image);
+        } else { // ファイルが選択されていなければ元の画像のファイル名のまま
+            $image = $message->image;
+        }
+        
+        // インスタンス情報の更新
+        $message->name = $name;
+        $message->title = $title;
+        $message->body = $body;
+        $message->image = $image;
+
+        // データベースに保存
+        $message->save();
+            
+        // show action へリダイレクト
+        return redirect('/messages/' . $message->id);
     }
 
     /**
@@ -85,6 +157,11 @@ class MessagesController extends Controller
      */
     public function destroy(Message $message)
     {
-        //
+        //dd('destroy');
+        // データベースからデータを削除
+        $message->delete();
+        
+        // index action へリダイレクト
+        return redirect('/');
     }
 }
